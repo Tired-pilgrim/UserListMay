@@ -1,0 +1,53 @@
+﻿<Window x:Class="Views.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:view="clr-namespace:Views.Windows"
+        xmlns:viewmodel="clr-namespace:ViewModel;assembly=ViewModel"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        Title="MainWindow" Height="450" Width="830">
+    <d:Window.DataContext>
+        <viewmodel:MainViewModel/>
+    </d:Window.DataContext>
+    <Grid>
+        <DockPanel  LastChildFill="True">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+                <Button Content="Открыть" FontSize="16" Width="120" HorizontalAlignment="Left"
+                        Margin="20 0"  
+                        Click="{view:View Open}"/>
+                <Button Content="Добавить" FontSize="16" Width="120" HorizontalAlignment="Center"
+                        Margin="20 0"
+                        Command="{view:View Add}"/>
+                <Button Content="Сохранить" FontSize="16" Width="120" HorizontalAlignment="Right"
+                        Margin="20 0" 
+                        Command="{view:View Save}"/>
+                <Button Content="Удалить" FontSize="16" Width="120" HorizontalAlignment="Right"
+                        Margin="20 0" 
+                        Command="{Binding RemoveUserCommand}"
+                        CommandParameter="{Binding ElementName=MyLV, Path=SelectedItem}"/>
+                <Button Content="Очистить" FontSize="16" Width="120" HorizontalAlignment="Right"
+                        Margin="20 0" 
+                        Command="{Binding ClearUserCommand}"/>
+            </StackPanel>
+            <StatusBar DockPanel.Dock="Bottom">
+                <StatusBarItem>
+                    <TextBlock x:Name="MessageBox"
+                               Text="{Binding InfoText, Source={x:Static view:MessageDO.Instance}}"
+                               Opacity="{Binding InfoOpacity, Source={x:Static view:MessageDO.Instance}}"/>
+                </StatusBarItem>
+            </StatusBar>
+            <ListView x:Name="MyLV" ItemsSource="{Binding Users}" FontSize="16" DockPanel.Dock="Bottom">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Имя" Width="200" DisplayMemberBinding="{Binding Name}"/>
+                        <GridViewColumn Header="Фамилия" Width="200" DisplayMemberBinding="{Binding Family}"/>
+                        <GridViewColumn Header="Должность" Width="200" DisplayMemberBinding="{Binding Job}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            
+        </DockPanel>
+    </Grid>
+</Window>
