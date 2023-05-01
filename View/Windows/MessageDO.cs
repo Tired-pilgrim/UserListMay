@@ -1,8 +1,8 @@
-﻿using System;
+﻿using JointLib;
+using System;
+using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Media.Animation;
 using VievModelLib;
-using JointLib;
 
 namespace Views.Windows
 {
@@ -10,16 +10,6 @@ namespace Views.Windows
     {
         private MessageDO() { }
         public static readonly MessageDO Instance = new MessageDO();
-
-        public double InfoOpacity
-        {
-            get { return (double)GetValue(InfoOpacityProperty); }
-            set { SetValue(InfoOpacityProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for Opacity.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty InfoOpacityProperty =
-            DependencyProperty.Register(nameof(InfoOpacity), typeof(double), typeof(MessageDO), new PropertyMetadata(0.0));
 
         public string InfoText
         {
@@ -42,32 +32,115 @@ namespace Views.Windows
         }
         private static void ShowErrorDialog(Error message)
         {
-            MessageBox.Show(message.error, "Список служащих");
+            _ = Instance.Dispatcher.BeginInvoke(() => MessageBox.Show(message.error, "Список служащих"));
         }
-        private static readonly Storyboard ShowAnimation;
-        static MessageDO()
-        {
-            DoubleAnimationUsingKeyFrames doubleAnimation = new DoubleAnimationUsingKeyFrames();
-            doubleAnimation.KeyFrames.Add(new DiscreteDoubleKeyFrame(0, KeyTime.FromPercent(0)));
-            doubleAnimation.KeyFrames.Add(new LinearDoubleKeyFrame(1, KeyTime.FromPercent(0.07)));
-            doubleAnimation.KeyFrames.Add(new DiscreteDoubleKeyFrame(1, KeyTime.FromPercent(0.8)));
-            doubleAnimation.KeyFrames.Add(new LinearDoubleKeyFrame(0, KeyTime.FromPercent(1)));
-            doubleAnimation.Duration = TimeSpan.FromSeconds(5);
-
-            Storyboard.SetTarget(doubleAnimation, Instance);
-            Storyboard.SetTargetProperty(doubleAnimation, new PropertyPath(InfoOpacityProperty));
-
-            ShowAnimation = new Storyboard();
-            ShowAnimation.Children.Add(doubleAnimation);
-        }
-
         private static void MessageShow(Info message)
         {
             _ = Instance.Dispatcher.BeginInvoke(() =>
             {
                 Instance.InfoText = message.info;
-                ShowAnimation.Begin();
+                elements.RemoveAll(elm => !elm.TryGetTarget(out _));
+
+                for (int i = 0; i < elements.Count; i++)
+                {
+                    if (elements[i].TryGetTarget(out UIElement? element))
+                    {
+                        InfoReceivedArgs args = new InfoReceivedArgs(InfoReceivedEvent, element, message);
+                        element.RaiseEvent(args);
+                        break;
+                    }
+                }
             });
         }
+
+        // Register a custom routed event using the bubble routing strategy.
+        public static readonly RoutedEvent InfoReceivedEvent = EventManager.RegisterRoutedEvent(
+            nameof(InfoReceivedEvent)[0..^5], RoutingStrategy.Bubble, typeof(InfoReceivedHandler), typeof(MessageDO));
+
+        // Provide an add handler accessor method for the Clean event.
+        public static void AddInfoReceivedHandler(DependencyObject dependencyObject, RoutedEventHandler handler)
+        {
+            if (dependencyObject is not UIElement uiElement)
+                return;
+
+            uiElement.AddHandler(InfoReceivedEvent, handler);
+        }
+
+        // Provide a remove handler accessor method for the Clean event.
+        public static void RemoveInfoReceivedHandler(DependencyObject dependencyObject, RoutedEventHandler handler)
+        {
+            if (dependencyObject is not UIElement uiElement)
+                return;
+
+            uiElement.RemoveHandler(InfoReceivedEvent, handler);
+        }
+
+
+
+        public static bool GetNeedRaiseInfoReceived(UIElement obj)
+        {
+            return (bool)obj.GetValue(NeedRaiseInfoReceivedProperty);
+        }
+
+        public static void SetNeedRaiseInfoReceived(UIElement obj, bool value)
+        {
+            obj.SetValue(NeedRaiseInfoReceivedProperty, value);
+        }
+
+        // Using a DependencyProperty as the backing store for NeedRaiseMessageReceived.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty NeedRaiseInfoReceivedProperty =
+            DependencyProperty.RegisterAttached(
+                nameof(GetNeedRaiseInfoReceived)[3..],
+                typeof(bool),
+                typeof(MessageDO),
+                new PropertyMetadata(false, OnNeedRaiseMessageReceivedChanged));
+
+        private static void OnNeedRaiseMessageReceivedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is not UIElement element)
+                throw new NotImplementedException("Только для UIElement");
+
+            elements.RemoveAll(elm => !elm.TryGetTarget(out _));
+
+            if (Equals(e.NewValue, true))
+            {
+                int i = 0;
+                for (; i < elements.Count; i++)
+                {
+                    if (elements[i].TryGetTarget(out UIElement? elm) && elm == element)
+                        break;
+                }
+                if (i >= elements.Count)
+                {
+                    elements.Add(new(element));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < elements.Count; i++)
+                {
+                    if (elements[i].TryGetTarget(out UIElement? elm) && elm == element)
+                    {
+                        elements.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static readonly List<WeakReference<UIElement>> elements = new List<WeakReference<UIElement>>();
     }
+
+
+    public delegate void InfoReceivedHandler(object sender, InfoReceivedArgs e);
+    public class InfoReceivedArgs : RoutedEventArgs
+    {
+        public Info Info { get; }
+        public InfoReceivedArgs(RoutedEvent routedEvent, object source, Info info)
+            : base(routedEvent, source)
+        {
+            Info = info;
+        }
+    }
+
 }

@@ -32,10 +32,33 @@
                         Command="{Binding ClearUserCommand}"/>
             </StackPanel>
             <StatusBar DockPanel.Dock="Bottom">
+                <StatusBar.Triggers>
+                    <EventTrigger RoutedEvent="view:MessageDO.InfoReceived">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimationUsingKeyFrames
+                                    Duration="0:0:5"
+                                    Storyboard.TargetName="MessageBox"
+                                    Storyboard.TargetProperty="Opacity">
+
+                                    <DiscreteDoubleKeyFrame KeyTime="0%" Value="0"/>
+                                    <LinearDoubleKeyFrame KeyTime="10%" Value="1"/>
+                                    <DiscreteDoubleKeyFrame KeyTime="80%" Value="1"/>
+                                    <LinearDoubleKeyFrame KeyTime="100%" Value="0"/>
+                                </DoubleAnimationUsingKeyFrames>
+                                <ColorAnimation From="Red" To="White"
+                                                Duration="0:0:5"
+                                                Storyboard.TargetName="MessageBox"
+                                                Storyboard.TargetProperty="Background.Color"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </StatusBar.Triggers>
                 <StatusBarItem>
                     <TextBlock x:Name="MessageBox"
                                Text="{Binding InfoText, Source={x:Static view:MessageDO.Instance}}"
-                               Opacity="{Binding InfoOpacity, Source={x:Static view:MessageDO.Instance}}"/>
+                               view:MessageDO.NeedRaiseInfoReceived="True"
+                               Background="Transparent"/>
                 </StatusBarItem>
             </StatusBar>
             <ListView x:Name="MyLV" ItemsSource="{Binding Users}" FontSize="16" DockPanel.Dock="Bottom">
