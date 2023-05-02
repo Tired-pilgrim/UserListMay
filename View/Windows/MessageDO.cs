@@ -1,6 +1,7 @@
 ﻿using JointLib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 using VievModelLib;
 
@@ -107,6 +108,7 @@ namespace Views.Windows
                 int i = 0;
                 for (; i < elements.Count; i++)
                 {
+                    Debug.WriteLine("i = " + i);
                     if (elements[i].TryGetTarget(out UIElement? elm) && elm == element)
                         break;
                 }

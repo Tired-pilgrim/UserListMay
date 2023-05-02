@@ -31,7 +31,7 @@
                         Margin="20 0" 
                         Command="{Binding ClearUserCommand}"/>
             </StackPanel>
-            <StatusBar DockPanel.Dock="Bottom">
+             <StatusBar DockPanel.Dock="Bottom">
                 <StatusBar.Triggers>
                     <EventTrigger RoutedEvent="view:MessageDO.InfoReceived">
                         <BeginStoryboard>
@@ -40,13 +40,13 @@
                                     Duration="0:0:5"
                                     Storyboard.TargetName="MessageBox"
                                     Storyboard.TargetProperty="Opacity">
-
+                                    
                                     <DiscreteDoubleKeyFrame KeyTime="0%" Value="0"/>
                                     <LinearDoubleKeyFrame KeyTime="10%" Value="1"/>
                                     <DiscreteDoubleKeyFrame KeyTime="80%" Value="1"/>
                                     <LinearDoubleKeyFrame KeyTime="100%" Value="0"/>
                                 </DoubleAnimationUsingKeyFrames>
-                                <ColorAnimation From="Red" To="White"
+                                <ColorAnimation From="Aquamarine" To="White"
                                                 Duration="0:0:5"
                                                 Storyboard.TargetName="MessageBox"
                                                 Storyboard.TargetProperty="Background.Color"/>
