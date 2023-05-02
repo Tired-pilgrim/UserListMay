@@ -75,9 +75,6 @@ namespace Views.Windows
 
             uiElement.RemoveHandler(InfoReceivedEvent, handler);
         }
-
-
-
         public static bool GetNeedRaiseInfoReceived(UIElement obj)
         {
             return (bool)obj.GetValue(NeedRaiseInfoReceivedProperty);
