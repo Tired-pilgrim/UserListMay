@@ -10,7 +10,30 @@
         Title="MainWindow" Height="450" Width="830">
     <d:Window.DataContext>
         <viewmodel:MainViewModel/>
-    </d:Window.DataContext>    
+    </d:Window.DataContext>
+    <Window.Resources>
+        <Style TargetType="{x:Type TextBlock}">
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="view:MessageDO.InfoReceived">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimationUsingKeyFrames
+                                    Duration="0:0:5"
+                                    Storyboard.TargetProperty="Opacity">
+                                <DiscreteDoubleKeyFrame KeyTime="0%" Value="0"/>
+                                <LinearDoubleKeyFrame KeyTime="10%" Value="1"/>
+                                <DiscreteDoubleKeyFrame KeyTime="80%" Value="1"/>
+                                <LinearDoubleKeyFrame KeyTime="100%" Value="0"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <ColorAnimation From="Aquamarine" To="White"
+                                                Duration="0:0:5"
+                                                Storyboard.TargetProperty="Background.Color"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <Grid>
         <DockPanel  LastChildFill="True">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
@@ -32,28 +55,6 @@
                         Command="{Binding ClearUserCommand}"/>
             </StackPanel>
              <StatusBar DockPanel.Dock="Bottom">
-                <StatusBar.Triggers>
-                    <EventTrigger RoutedEvent="view:MessageDO.InfoReceived">
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimationUsingKeyFrames
-                                    Duration="0:0:5"
-                                    Storyboard.TargetName="MessageBox"
-                                    Storyboard.TargetProperty="Opacity">
-                                    
-                                    <DiscreteDoubleKeyFrame KeyTime="0%" Value="0"/>
-                                    <LinearDoubleKeyFrame KeyTime="10%" Value="1"/>
-                                    <DiscreteDoubleKeyFrame KeyTime="80%" Value="1"/>
-                                    <LinearDoubleKeyFrame KeyTime="100%" Value="0"/>
-                                </DoubleAnimationUsingKeyFrames>
-                                <ColorAnimation From="Aquamarine" To="White"
-                                                Duration="0:0:5"
-                                                Storyboard.TargetName="MessageBox"
-                                                Storyboard.TargetProperty="Background.Color"/>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger>
-                </StatusBar.Triggers>
                 <StatusBarItem>
                     <TextBlock x:Name="MessageBox"
                                Text="{Binding InfoText, Source={x:Static view:MessageDO.Instance}}"
@@ -70,7 +71,6 @@
                     </GridView>
                 </ListView.View>
             </ListView>
-            
         </DockPanel>
     </Grid>
 </Window>
