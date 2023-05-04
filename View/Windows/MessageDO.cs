@@ -22,6 +22,8 @@ namespace Views.Windows
             DependencyProperty.Register(nameof(InfoText), typeof(string), typeof(MessageDO), new PropertyMetadata(string.Empty)
             {
                 CoerceValueCallback = (d, e) => e ?? string.Empty
+                //Оператор ?? возвращает левый операнд, если этот операнд не равен null.
+                //Иначе возвращается правый операнд. 
             });
 
         public static void Register() => Register(DialogsService.Default);
@@ -97,15 +99,24 @@ namespace Views.Windows
         {
             if (d is not UIElement element)
                 throw new NotImplementedException("Только для UIElement");
-
-            elements.RemoveAll(elm => !elm.TryGetTarget(out _));
-
+            //TryGetTarget Пытается извлечь целевой объект, на который ссылается текущий объект
+            //Возвращает False, если целевой объект не был извлечен; 
+            elements.RemoveAll(elm => !elm.TryGetTarget(out _));//см. предикат
+            // Здесь, удаляет все элементы, которые не удалось извлечь - пустые ссылки
+            /* Элд Хасп
+             * Когда view:MessageDO.NeedRaiseInfoReceived="True" нужно обойти список объектов и проверить,
+             * есть ли в нём этот объект. Перед циклом из списка удаляются все пустые ссылки.
+             * В итерации цикла происходит попытка извлечения объекта 
+             * и потом его сравнение с тем к которому нужно прикрепить.
+             * Если такой попадётся, то цикл будет прерван и, следовательно, i не достигнет длины списка.
+             * Поэтому после цикла по сравнению i с длиной списка можно определить найден был элемент или нет. 
+             * Если не найден - значит надо его добавить в список.
+             */
             if (Equals(e.NewValue, true))
             {
                 int i = 0;
                 for (; i < elements.Count; i++)
                 {
-                    Debug.WriteLine("i = " + i);
                     if (elements[i].TryGetTarget(out UIElement? elm) && elm == element)
                         break;
                 }
@@ -126,12 +137,15 @@ namespace Views.Windows
                 }
             }
         }
-
+        /// <summary>
+        /// список объектов к которым прикреплено событие RouteedEvent 
+        /// </summary>
         private static readonly List<WeakReference<UIElement>> elements = new List<WeakReference<UIElement>>();
     }
 
 
     public delegate void InfoReceivedHandler(object sender, InfoReceivedArgs e);
+    //Насколько понимаю, в классе наследнике добавляется новый параметр - наш  тип данных
     public class InfoReceivedArgs : RoutedEventArgs
     {
         public Info Info { get; }
