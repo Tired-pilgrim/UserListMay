@@ -10,7 +10,7 @@
         Title="MainWindow" Height="450" Width="830">
     <d:Window.DataContext>
         <viewmodel:MainViewModel/>
-    </d:Window.DataContext>
+    </d:Window.DataContext>    
     <Grid>
         <DockPanel  LastChildFill="True">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
